@@ -14,6 +14,8 @@ import outline, { rule as outlineRule } from './plugins/outline'
 import themes, { Themes } from './themes'
 import { detectMarpFromMarkdown, marpConfiguration } from './utils'
 
+const mdc = require('markdown-it-container');
+
 const shouldRefreshConfs = [
   'markdown.marp.breaks',
   'markdown.marp.enableHtml',
@@ -80,16 +82,10 @@ function getRenderOptions(type: any) {
 }
 
 
+
 export function extendMarkdownIt(md: any) {
   const { parse, renderer } = md
   const { render } = renderer
-
-  // major update, add `markdown-it-container`
-  const containerTypes = ['tip', 'warning', 'info', 'details'];
-  const mdc = require('markdown-it-container');
-  containerTypes.forEach(type => {
-    md = md.use(mdc, type, getRenderOptions(type));
-  });
 
   md.parse = (markdown: string, env: any) => {
     // Generate tokens by Marp if enabled
@@ -108,10 +104,50 @@ export function extendMarkdownIt(md: any) {
         return undefined
       })()
 
-      const marp = new Marp(marpCoreOptionForPreview(md.options))
+      let marp = new Marp(marpCoreOptionForPreview(md.options))
         .use(customTheme)
         .use(outline)
         .use(lineNumber)
+
+      // major update, add `markdown-it-container`
+      const addContainerBox = (marp, tagName, className, modify = x => x) => {
+        const re = new RegExp(`^${tagName}:?(.*)$`);
+        const boxClass = `block ${className === "block" ? "" : className}`;
+        const headClass = `block-head ${className === "block" ? "" : className + "-head"}`;
+        marp.use(mdc, tagName, {
+          validate: (params) => {
+            return params.trim().match(re);
+          },
+          render: (tokens, idx) => {
+            const m = tokens[idx].info.trim().match(re);
+            const name = modify(m ? m[1] : "");
+            if (tokens[idx].nesting === 1) {
+              let ret = `<div class="${boxClass}">`;
+              if (name) {
+                ret += `<p class="${headClass}">${name}</p>`;
+              }
+              ret += `\n`;
+              return ret;
+            } else {
+              return `</div>\n`;
+            }
+          }
+        });
+      };
+      
+      addContainerBox(marp, "block", "block");
+      addContainerBox(marp, "black", "block");
+      addContainerBox(marp, "info", "info", name => name || "info");
+      addContainerBox(marp, "blue", "info", name => name || "info");
+      addContainerBox(marp, "warn", "warn", name => name || "warn");
+      addContainerBox(marp, "red", "warn", name => name || "warn");
+      addContainerBox(marp, "footnote", "footnote");
+
+      // const containerTypes = ['tip', 'warning', 'info', 'details'];
+      // containerTypes.forEach(type => {
+      //   marp = marp.use(mdc, type, getRenderOptions(type));
+      //   // md = md.use(mdc, type, getRenderOptions(type));
+      // });
 
       // Switch rules
       if (!(marpConfiguration().get<boolean>('outlineExtension') ?? true)) {
