@@ -1,5 +1,7 @@
 # Change Log
 
+## v2.3.1 - 2022-12-11
+
 > ℹ️ **[v2.x](#v200---2022-06-03) is currently available as pre-released version. Try it and ready for [the next new core](https://marp.app/blog/202205-ecosystem-update)!**
 
 ## [Unreleased]

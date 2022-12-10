@@ -1,4 +1,5 @@
 import { Marp } from '@marp-team/marp-core'
+import * as mdc from 'markdown-it-container'
 import { ExtensionContext, Uri, commands, workspace } from 'vscode'
 import * as exportCommand from './commands/export'
 import * as newMarpMarkdown from './commands/new-marp-markdown'
@@ -14,7 +15,6 @@ import outline, { rule as outlineRule } from './plugins/outline'
 import themes, { Themes } from './themes'
 import { detectMarpFromMarkdown, marpConfiguration } from './utils'
 
-const mdc = require('markdown-it-container');
 
 const shouldRefreshConfs = [
   'markdown.marp.breaks',
@@ -50,7 +50,7 @@ function getRenderFunction(type: any, arg_reg: any) {
     return (tokens: any[], idx: any) => {
       if (tokens[idx].nesting === 1) {
         // opening tag
-        let title = tokens[idx].info.trim().match(arg_reg)[1];
+        const title = tokens[idx].info.trim().match(arg_reg)[1];
         // title = escapeHtml(title);
         return `<details class="block details">${title ? `\n<summary>${title}</summary>\n` : ''}`;
       } else {
@@ -62,7 +62,7 @@ function getRenderFunction(type: any, arg_reg: any) {
     return (tokens: any[], idx: any) => {
       if (tokens[idx].nesting === 1) {
         // opening tag
-        let title = tokens[idx].info.trim().match(arg_reg)[1];
+        const title = tokens[idx].info.trim().match(arg_reg)[1];
         // title = escapeHtml(title);
         return `<div class="block ${type}">${title ? `\n<p class="block-title">${title}</p>` : ''}\n`;
       } else {
@@ -73,15 +73,13 @@ function getRenderFunction(type: any, arg_reg: any) {
   }
 }
 
-function getRenderOptions(type: any) {
-  const ARG_REG = new RegExp(`^${type}\\s*(.*?)$`);
-  return {
-    validate: (params) => params.trim().match(ARG_REG) !== null,
-    render: getRenderFunction(type, ARG_REG)
-  }
-}
-
-
+// function getRenderOptions(type: any) {
+//   const ARG_REG = new RegExp(`^${type}\\s*(.*?)$`);
+//   return {
+//     validate: (params) => params.trim().match(ARG_REG) !== null,
+//     render: getRenderFunction(type, ARG_REG)
+//   }
+// }
 
 export function extendMarkdownIt(md: any) {
   const { parse, renderer } = md
@@ -104,7 +102,7 @@ export function extendMarkdownIt(md: any) {
         return undefined
       })()
 
-      let marp = new Marp(marpCoreOptionForPreview(md.options))
+      const marp = new Marp(marpCoreOptionForPreview(md.options))
         .use(customTheme)
         .use(outline)
         .use(lineNumber)
@@ -134,7 +132,7 @@ export function extendMarkdownIt(md: any) {
           }
         });
       };
-      
+
       addContainerBox(marp, "block", "block");
       addContainerBox(marp, "black", "block");
       addContainerBox(marp, "info", "info", name => name || "info");
