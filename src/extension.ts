@@ -31,9 +31,65 @@ const applyRefreshedConfiguration = () => {
 
 export const marpVscode = Symbol('marp-vscode')
 
+// const htmlEscapes = {
+//   '&': '&amp;',
+//   '<': '&lt;',
+//   '>': '&gt;',
+//   '"': '&quot;',
+//   "'": '&#39;'
+// }
+
+// function escapeHtml(html: any) {
+//   return html.replace(/[&<>"']/g, chr => htmlEscapes[chr])
+// }
+
+function getRenderFunction(type: any, arg_reg: any) {
+  if (type === "details") {
+    return (tokens: any[], idx: any) => {
+      if (tokens[idx].nesting === 1) {
+        // opening tag
+        let title = tokens[idx].info.trim().match(arg_reg)[1];
+        // title = escapeHtml(title);
+        return `<details class="block details">${title ? `\n<summary>${title}</summary>\n` : ''}`;
+      } else {
+        // closing tag
+        return '</details>\n';
+      }
+    };
+  } else {
+    return (tokens: any[], idx: any) => {
+      if (tokens[idx].nesting === 1) {
+        // opening tag
+        let title = tokens[idx].info.trim().match(arg_reg)[1];
+        // title = escapeHtml(title);
+        return `<div class="block ${type}">${title ? `\n<p class="block-title">${title}</p>` : ''}\n`;
+      } else {
+        // closing tag
+        return '</div>\n';
+      }
+    };
+  }
+}
+
+function getRenderOptions(type: any) {
+  const ARG_REG = new RegExp(`^${type}\\s*(.*?)$`);
+  return {
+    validate: (params) => params.trim().match(ARG_REG) !== null,
+    render: getRenderFunction(type, ARG_REG)
+  }
+}
+
+
 export function extendMarkdownIt(md: any) {
   const { parse, renderer } = md
   const { render } = renderer
+
+  // major update, add `markdown-it-container`
+  const containerTypes = ['tip', 'warning', 'info', 'details'];
+  const mdc = require('markdown-it-container');
+  containerTypes.forEach(type => {
+    md = md.use(mdc, type, getRenderOptions(type));
+  });
 
   md.parse = (markdown: string, env: any) => {
     // Generate tokens by Marp if enabled
