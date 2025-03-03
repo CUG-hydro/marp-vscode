@@ -14,6 +14,7 @@ import lineNumber from './plugins/line-number'
 import outline, { rule as outlineRule } from './plugins/outline'
 import themes, { Themes } from './themes'
 import { detectMarpFromMarkdown, marpConfiguration } from './utils'
+import { addContainerBox } from './markdown-it-container'
 
 const shouldRefreshConfs = [
   'markdown.marp.breaks',
@@ -58,6 +59,14 @@ export function extendMarkdownIt(md: any) {
         .use(customTheme)
         .use(outline)
         .use(lineNumber)
+
+      addContainerBox(marp, "block", "block");
+      addContainerBox(marp, "black", "block");
+      addContainerBox(marp, "info", "info", name => name || "info");
+      addContainerBox(marp, "blue", "info", name => name || "info");
+      addContainerBox(marp, "warn", "warn", name => name || "warn");
+      addContainerBox(marp, "red", "warn", name => name || "warn");
+      addContainerBox(marp, "footnote", "footnote");
 
       // Switch rules
       if (!(marpConfiguration().get<boolean>('outlineExtension') ?? true)) {

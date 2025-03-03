@@ -2,7 +2,7 @@
   "name": "marp-vscode",
   "displayName": "Marp for VS Code",
   "publisher": "marp-team",
-  "version": "3.1.0",
+  "version": "9.4.0",
   "description": "Create slide deck written in Marp Markdown on VS Code",
   "categories": [
     "Other"
@@ -338,7 +338,7 @@
     "test:unit:coverage": "jest --coverage",
     "version": "curl https://raw.githubusercontent.com/marp-team/actions/v1/lib/scripts/version.js | node && git add -A CHANGELOG.md",
     "vsce:publish": "vsce publish",
-    "vscode:prepublish": "run-s preversion build",
+    "vscode:prepublish": "run-s build",
     "watch": "webpack --watch",
     "watch:node": "webpack --watch --env target=node,preview",
     "watch:web": "webpack --watch --env target=web,preview"
@@ -401,6 +401,7 @@
     "yaml": "^2.6.1"
   },
   "dependencies": {
-    "@marp-team/marp-cli": "^4.1.1"
+    "@marp-team/marp-cli": "^4.1.1",
+    "markdown-it-container": "^4.0.0"
   }
 }
