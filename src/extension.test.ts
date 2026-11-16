@@ -124,6 +124,15 @@ describe('#getExtendMarkdownIt', () => {
   })
 
   describe('Plugins', () => {
+    it('renders custom containers', () => {
+      const html = extension()
+        .getExtendMarkdownIt({ subscriptions })(new markdownIt())
+        .render(marpMd(':::info\nHello\n:::'))
+
+      expect(html).toContain('<div class="block info">')
+      expect(html).toContain('<p class="block-head info-head">info</p>')
+    })
+
     describe('Custom theme', () => {
       const marpCore = (markdown = ''): Marp => {
         const { getExtendMarkdownIt, marpVscode } = extension()

@@ -20,6 +20,7 @@ import outline, { rule as outlineRule } from './plugins/outline'
 import { isOverflowTrackerEvent } from './preview/overflow-tracker'
 import themes, { Themes } from './themes'
 import { detectMarpFromMarkdown, marpConfiguration } from './utils'
+import { addContainerBox } from './markdown-it-container'
 
 const shouldRefreshConfs = [
   'markdown.marp.breaks',
@@ -107,6 +108,14 @@ export const getExtendMarkdownIt = ({
         marp.markdown.renderer.rules.image = md.renderer.rules.image
         marp.markdown.renderer.rules.link_open = md.renderer.rules.link_open
         marp.markdown.normalizeLink = md.normalizeLink
+
+        addContainerBox(marp, 'block', 'block')
+        addContainerBox(marp, 'black', 'block')
+        addContainerBox(marp, 'info', 'info', (name) => name || 'info')
+        addContainerBox(marp, 'blue', 'info', (name) => name || 'info')
+        addContainerBox(marp, 'warn', 'warn', (name) => name || 'warn')
+        addContainerBox(marp, 'red', 'warn', (name) => name || 'warn')
+        addContainerBox(marp, 'footnote', 'footnote')
 
         // validateLink prefers Marp's default. If overridden by VS Code's it,
         // does not return compatible result with the other Marp tools.
